@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Try Out UKPPPG</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #4f46e5;
+      --primary-soft: #eef2ff;
+      --ok: #16a34a;
+      --ok-soft: #f0fdf4;
+      --bad: #dc2626;
+      --bad-soft: #fef2f2;
+      --info-soft: #fffbeb;
+      --info-line: #f59e0b;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --line: #334155;
+        --primary: #818cf8;
+        --primary-soft: #1e1b4b;
+        --ok: #4ade80;
+        --ok-soft: #052e16;
+        --bad: #f87171;
+        --bad-soft: #450a0a;
+        --info-soft: #422006;
+        --info-line: #f59e0b;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 1.15rem;
+      margin: 0;
+    }
+
+    #timer {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .bar {
+      height: 8px;
+      background: var(--line);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .bar>div {
+      height: 100%;
+      width: 0;
+      background: var(--primary);
+      transition: width .25s;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: .85rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .kategori {
+      display: inline-block;
+      font-size: .75rem;
+      background: var(--primary-soft);
+      color: var(--primary);
+      padding: 2px 10px;
+      border-radius: 99px;
+      margin-bottom: 10px;
+    }
+
+    .soal {
+      font-size: 1.05rem;
+      white-space: pre-line;
+      margin: 0 0 16px;
+    }
+
+    .opsi {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .opsi button {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      text-align: left;
+      width: 100%;
+      padding: 12px 14px;
+      font: inherit;
+      color: inherit;
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .opsi button:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .opsi button:disabled {
+      cursor: default;
+    }
+
+    .huruf {
+      flex: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: .85rem;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .opsi .teks {
+      white-space: pre-line;
+      padding-top: 2px;
+    }
+
+    .opsi button.benar {
+      border-color: var(--ok);
+      background: var(--ok-soft);
+    }
+
+    .opsi button.benar .huruf {
+      background: var(--ok);
+      color: #fff;
+    }
+
+    .opsi button.salah {
+      border-color: var(--bad);
+      background: var(--bad-soft);
+    }
+
+    .opsi button.salah .huruf {
+      background: var(--bad);
+      color: #fff;
+    }
+
+    .bahas {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 10px;
+      background: var(--info-soft);
+      border-left: 4px solid var(--info-line);
+    }
+
+    .bahas .status {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .bahas .status.ok {
+      color: var(--ok);
+    }
+
+    .bahas .status.bad {
+      color: var(--bad);
+    }
+
+    .bahas .isi {
+      white-space: pre-line;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      font: inherit;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1.5px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--primary);
+    }
+
+    .btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .grid button {
+      font: inherit;
+      padding: 8px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1.5px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+    }
+
+    .grid button.sudah-benar {
+      background: var(--ok-soft);
+      border-color: var(--ok);
+    }
+
+    .grid button.sudah-salah {
+      background: var(--bad-soft);
+      border-color: var(--bad);
+    }
+
+    .grid button.aktif {
+      outline: 2.5px solid var(--primary);
+      outline-offset: 1px;
+    }
+
+    .hasil {
+      text-align: center;
+    }
+
+    .skor {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 6px 0;
+    }
+
+    .rincian {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 12px 0 18px;
+    }
+
+    .rincian div {
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    .rincian b {
+      display: block;
+      font-size: 1.3rem;
+      color: var(--text);
+    }
+
+    .aksi {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .pesan {
+      text-align: center;
+      padding: 40px 10px;
+      color: var(--muted);
+    }
+
+    .error {
+      color: var(--bad);
+    }
+
+    footer {
+      text-align: center;
+      font-size: .8rem;
+      color: var(--muted);
+      margin-top: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <h1 id="judul">Try Out UKPPPG</h1>
+      <div id="timer"></div>
+    </header>
+    <div id="app">
+      <div class="pesan">Memuat soal…</div>
+    </div>
+    <footer>Latihan mandiri · pilih jawaban untuk melihat pembahasan</footer>
+  </div>
+
+  <script>
+    /* ============================================================
+       PENGATURAN (satu-satunya bagian yang perlu kamu ubah di kode)
+       ============================================================ */
+    const CONFIG = {
+      // Tempel link CSV dari Google Sheets (File > Bagikan > Publikasikan ke web > CSV).
+      // Kosongkan untuk memakai soal contoh bawaan di bawah.
+      SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJxt8llUXfyDHdSBH9OPFvi-_oPIKXBfutVGFADBnR3G_m6MOELz_zKATOKiyBABsSKckHElhUm9lm/pub?output=csv",
+
+      JUDUL: "Contoh Soal Try Out UKPPPG",
+      DURASI_MENIT: 0,     // 0 = tanpa batas waktu. Isi misal 120 untuk hitung mundur 2 jam.
+      ACAK_SOAL: true     // true = urutan soal diacak setiap mulai ulang
+    };
+
+    /* Soal contoh (dipakai kalau SHEET_CSV_URL kosong atau gagal dimuat) */
+    const SOAL_CONTOH = [
+      {
+        kategori: "Pedagogik",
+        soal: "Seorang guru memberikan scaffolding berupa petunjuk bertahap kepada siswa yang belum mampu menyelesaikan soal sendiri, lalu secara perlahan mengurangi bantuannya. Praktik ini paling sesuai dengan konsep…",
+        opsi: ["Operant conditioning dari Skinner", "Zone of Proximal Development dari Vygotsky", "Tahap operasional konkret dari Piaget", "Hierarki kebutuhan dari Maslow", "Social learning dari Bandura"],
+        kunci: 1,
+        pembahasan: "Scaffolding berkaitan langsung dengan Zone of Proximal Development (ZPD) Vygotsky, yaitu jarak antara kemampuan siswa saat bekerja sendiri dan kemampuan saat dibantu. Bantuan diberikan secukupnya lalu dikurangi sampai siswa mandiri."
+      },
+      {
+        kategori: "Asesmen",
+        soal: "Guru mengamati proses diskusi siswa, memberi umpan balik langsung, dan menggunakan hasilnya untuk menyesuaikan pembelajaran berikutnya. Jenis asesmen yang dilakukan adalah…",
+        opsi: ["Asesmen sumatif akhir semester", "Asesmen diagnostik nonkognitif", "Asesmen formatif", "Asesmen standar nasional", "Asesmen seleksi masuk"],
+        kunci: 2,
+        pembahasan: "Asesmen formatif dilakukan selama proses pembelajaran untuk memantau kemajuan dan hasilnya dipakai memperbaiki pembelajaran. Ciri utamanya adalah umpan balik berkelanjutan dan tindak lanjut segera."
+      },
+      {
+        kategori: "Pedagogik",
+        soal: "Pada taksonomi Bloom revisi, kata kerja operasional \"membandingkan\" dan \"menguraikan\" termasuk pada level kognitif…",
+        opsi: ["C2 (memahami)", "C3 (menerapkan)", "C4 (menganalisis)", "C5 (mengevaluasi)", "C6 (mencipta)"],
+        kunci: 2,
+        pembahasan: "Membandingkan, menguraikan, dan membedakan adalah kata kerja operasional pada level C4 (menganalisis), yaitu memecah informasi menjadi bagian-bagian dan melihat hubungan antarbagian."
+      }
+    ];
+
+    /* ============================================================
+       KODE APLIKASI (tidak perlu diubah)
+       ============================================================ */
+    const HURUF = ["A", "B", "C", "D", "E"];
+    const $app = document.getElementById("app");
+    const $timer = document.getElementById("timer");
+    document.getElementById("judul").textContent = CONFIG.JUDUL;
+    document.title = CONFIG.JUDUL;
+
+    let soal = [];          // daftar soal
+    let jawab = [];         // jawaban pilihan siswa per soal (null = belum)
+    let idx = 0;            // soal yang sedang tampil
+    let selesai = false;
+    let endAt = null;       // waktu berakhir (ms) bila ada timer
+    let tick = null;
+
+    /* ---------- Parser CSV (mendukung tanda kutip & baris baru) ---------- */
+    function parseCSV(text) {
+      const rows = []; let row = [], f = "", q = false;
+      text = text.replace(/^\uFEFF/, "");
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (q) {
+          if (c === '"') {if (text[i + 1] === '"') {f += '"'; i++;} else q = false;}
+          else f += c;
+        } else if (c === '"') q = true;
+        else if (c === ",") {row.push(f); f = "";}
+        else if (c === "\n" || c === "\r") {
+          if (c === "\r" && text[i + 1] === "\n") i++;
+          row.push(f); f = ""; rows.push(row); row = [];
+        } else f += c;
+      }
+      if (f !== "" || row.length) {row.push(f); rows.push(row);}
+      return rows.filter(r => r.some(x => x.trim() !== ""));
+    }
+
+    function csvKeSoal(text) {
+      const rows = parseCSV(text);
+      if (rows.length < 2) return [];
+      const head = rows[0].map(h => h.trim().toLowerCase());
+      const col = name => head.indexOf(name);
+      const iSoal = col("soal"), iKunci = col("kunci"), iBahas = col("pembahasan"), iKat = col("kategori");
+      const iOpsi = HURUF.map(h => col(h.toLowerCase()));
+      if (iSoal < 0 || iKunci < 0 || iOpsi[0] < 0) throw new Error("Kolom 'soal', 'a', 'b', 'kunci' tidak ditemukan. Cek header spreadsheet.");
+      const hasil = [];
+      for (const r of rows.slice(1)) {
+        const teks = (r[iSoal] || "").trim();
+        if (!teks) continue;
+        const opsi = [];
+        iOpsi.forEach(i => {if (i >= 0 && (r[i] || "").trim()) opsi.push(r[i].trim());});
+        const kunci = HURUF.indexOf((r[iKunci] || "").trim().toUpperCase());
+        if (opsi.length < 2 || kunci < 0 || kunci >= opsi.length) continue;
+        hasil.push({
+          kategori: iKat >= 0 ? (r[iKat] || "").trim() : "",
+          soal: teks, opsi, kunci,
+          pembahasan: iBahas >= 0 ? (r[iBahas] || "").trim() : ""
+        });
+      }
+      return hasil;
+    }
+
+    /* ---------- Penyimpanan progres di browser ---------- */
+    const KEY = "tryout-ukpppg-state";
+    function simpan() {
+      try {localStorage.setItem(KEY, JSON.stringify({n: soal.length, jawab, idx, selesai, endAt, sig: sig()}));} catch (e) { }
+    }
+    function muat() {
+      try {
+        const s = JSON.parse(localStorage.getItem(KEY));
+        if (s && s.n === soal.length && s.sig === sig()) {jawab = s.jawab; idx = s.idx; selesai = s.selesai; endAt = s.endAt; return true;}
+      } catch (e) { }
+      return false;
+    }
+    function sig() {return soal.map(s => s.soal.slice(0, 12)).join("|").length + ":" + soal.length;}
+
+    function acak(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {const j = Math.floor(Math.random() * (i + 1));[arr[i], arr[j]] = [arr[j], arr[i]];}
+      return arr;
+    }
+
+    /* ---------- Timer ---------- */
+    function mulaiTimer() {
+      clearInterval(tick); $timer.textContent = "";
+      if (!CONFIG.DURASI_MENIT || selesai) return;
+      if (!endAt) endAt = Date.now() + CONFIG.DURASI_MENIT * 60000;
+      const upd = () => {
+        const sisa = Math.max(0, endAt - Date.now());
+        const m = Math.floor(sisa / 60000), d = Math.floor(sisa / 1000) % 60;
+        $timer.textContent = "⏱ " + String(m).padStart(2, "0") + ":" + String(d).padStart(2, "0");
+        if (sisa <= 0) {clearInterval(tick); akhiri();}
+      };
+      upd(); tick = setInterval(upd, 1000);
+    }
+
+    /* ---------- Helper DOM ---------- */
+    function el(tag, attrs = {}, ...kids) {
+      const e = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === "class") e.className = v;
+        else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+        else e.setAttribute(k, v);
+      }
+      kids.forEach(k => e.append(k));
+      return e;
+    }
+
+    /* ---------- Tampilan soal ---------- */
+    function render() {
+      if (selesai) return renderHasil();
+      const s = soal[idx], dipilih = jawab[idx], sudah = dipilih !== null;
+      const dijawab = jawab.filter(x => x !== null).length;
+
+      const bar = el("div", {class: "bar"}, el("div", {style: "width:" + (dijawab / soal.length * 100) + "%"}));
+      const meta = el("div", {class: "meta"},
+        el("span", {}, "Soal " + (idx + 1) + " dari " + soal.length),
+        el("span", {}, dijawab + " terjawab"));
+
+      const card = el("div", {class: "card"});
+      if (s.kategori) card.append(el("span", {class: "kategori"}, s.kategori));
+      card.append(el("p", {class: "soal"}, s.soal));
+
+      const opsi = el("div", {class: "opsi"});
+      s.opsi.forEach((teks, i) => {
+        let cls = "";
+        if (sudah) {if (i === s.kunci) cls = "benar"; else if (i === dipilih) cls = "salah";}
+        const b = el("button", {class: cls, onclick: () => pilih(i)},
+          el("span", {class: "huruf"}, HURUF[i]), el("span", {class: "teks"}, teks));
+        if (sudah) b.disabled = true;
+        opsi.append(b);
+      });
+      card.append(opsi);
+
+      if (sudah) {
+        const benar = dipilih === s.kunci;
+        card.append(el("div", {class: "bahas"},
+          el("div", {class: "status " + (benar ? "ok" : "bad")},
+            benar ? "✓ Jawaban kamu benar" : "✗ Jawaban kamu kurang tepat. Jawaban benar: " + HURUF[s.kunci]),
+          el("div", {class: "isi"}, s.pembahasan || "Belum ada pembahasan untuk soal ini.")));
+      }
+
+      const terakhir = idx === soal.length - 1;
+      const nav = el("div", {class: "nav"},
+        el("button", {class: "btn ghost", onclick: () => pindah(idx - 1)}, "← Kembali"),
+        terakhir
+          ? el("button", {class: "btn", onclick: () => {if (konfirmasiAkhiri()) akhiri();}}, "Selesai")
+          : el("button", {class: "btn", onclick: () => pindah(idx + 1)}, "Lanjut →"));
+      nav.firstChild.disabled = idx === 0;
+
+      const grid = el("div", {class: "grid"});
+      soal.forEach((q, i) => {
+        let cls = "";
+        if (jawab[i] !== null) cls = jawab[i] === q.kunci ? "sudah-benar" : "sudah-salah";
+        if (i === idx) cls += " aktif";
+        grid.append(el("button", {class: cls.trim(), onclick: () => pindah(i)}, String(i + 1)));
+      });
+
+      $app.replaceChildren(bar, meta, card, nav, grid);
+    }
+
+    function konfirmasiAkhiri() {
+      const sisa = jawab.filter(x => x === null).length;
+      return sisa === 0 || confirm("Masih ada " + sisa + " soal belum dijawab. Yakin ingin menyelesaikan?");
+    }
+
+    function pilih(i) {if (jawab[idx] !== null) return; jawab[idx] = i; simpan(); render();}
+    function pindah(i) {if (i < 0 || i >= soal.length) return; idx = i; simpan(); render(); window.scrollTo({top: 0, behavior: "smooth"});}
+    function akhiri() {selesai = true; clearInterval(tick); $timer.textContent = ""; simpan(); render();}
+
+    function renderHasil() {
+      const benar = soal.filter((q, i) => jawab[i] === q.kunci).length;
+      const kosong = jawab.filter(x => x === null).length;
+      const salah = soal.length - benar - kosong;
+      const skor = Math.round(benar / soal.length * 100);
+      const card = el("div", {class: "card hasil"},
+        el("div", {}, "Skor kamu"),
+        el("div", {class: "skor"}, String(skor)),
+        el("div", {class: "rincian"},
+          el("div", {}, el("b", {}, String(benar)), "Benar"),
+          el("div", {}, el("b", {}, String(salah)), "Salah"),
+          el("div", {}, el("b", {}, String(kosong)), "Kosong")),
+        el("div", {class: "aksi"},
+          el("button", {class: "btn ghost", onclick: () => {selesai = false; idx = 0; render(); mulaiTimer();}}, "Tinjau pembahasan"),
+          el("button", {class: "btn", onclick: ulang}, "Ulangi dari awal")));
+      $app.replaceChildren(card);
+    }
+
+    function ulang() {
+      if (CONFIG.ACAK_SOAL) acak(soal);
+      jawab = soal.map(() => null); idx = 0; selesai = false; endAt = null;
+      simpan(); render(); mulaiTimer(); window.scrollTo({top: 0});
+    }
+
+    /* ---------- Rapikan link Google Sheets yang salah format ---------- */
+    function normalisasiUrl(u) {
+      u = (u || "").trim();
+      if (/spreadsheets\/d\/e\/[^\/]+\/pub/.test(u)) {
+        // link "Publikasikan ke web": pastikan formatnya CSV
+        if (/output=/.test(u)) return u.replace(/output=\w+/, "output=csv");
+        return u + (u.includes("?") ? "&" : "?") + "output=csv";
+      }
+      const m = u.match(/spreadsheets\/d\/([\w-]+)/);
+      if (m) {
+        // link edit/bagikan biasa: ubah ke endpoint CSV (sheet harus dibagikan "siapa saja dengan link")
+        const gid = u.match(/[#&?]gid=(\d+)/);
+        return "https://docs.google.com/spreadsheets/d/" + m[1] + "/gviz/tq?tqx=out:csv" + (gid ? "&gid=" + gid[1] : "");
+      }
+      return u;
+    }
+
+    /* ---------- Mulai ---------- */
+    async function mulai() {
+      let catatan = "";
+      try {
+        if (CONFIG.SHEET_CSV_URL) {
+          const res = await fetch(normalisasiUrl(CONFIG.SHEET_CSV_URL), {cache: "no-store"});
+          if (!res.ok) throw new Error("Gagal mengambil spreadsheet (HTTP " + res.status + ")");
+          soal = csvKeSoal(await res.text());
+          if (!soal.length) throw new Error("Tidak ada soal valid di spreadsheet.");
+        } else {
+          soal = SOAL_CONTOH.slice();
+        }
+      } catch (err) {
+        soal = SOAL_CONTOH.slice();
+        catatan = err instanceof TypeError
+          ? "Spreadsheet tidak bisa diakses [dibuka lewat: " + location.protocol + "//" + (location.host || "(file lokal)") + " | " + err.message + "]. Kalau protokolnya file:, jalankan lewat server lokal atau GitHub Pages."
+          : err.message;
+      }
+      if (CONFIG.ACAK_SOAL) acak(soal);
+      if (!muat()) {jawab = soal.map(() => null); idx = 0; selesai = false; endAt = null;}
+      render(); mulaiTimer();
+      if (catatan) $app.prepend(el("div", {class: "pesan error"}, "⚠ " + catatan + " — menampilkan soal contoh."));
+    }
+    mulai();
+  </script>
+</body>
+
+</html>
